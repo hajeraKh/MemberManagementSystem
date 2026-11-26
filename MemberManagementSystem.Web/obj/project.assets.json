@@ -4010,11 +4010,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\Hajera\\MemberManagementSystem\\MemberManagementSystem.Web\\MemberManagementSystem.Web.csproj",
+      "projectUniqueName": "D:\\MemberManagementSystem\\MemberManagementSystem.Web\\MemberManagementSystem.Web.csproj",
       "projectName": "MemberManagementSystem.Web",
-      "projectPath": "D:\\Hajera\\MemberManagementSystem\\MemberManagementSystem.Web\\MemberManagementSystem.Web.csproj",
+      "projectPath": "D:\\MemberManagementSystem\\MemberManagementSystem.Web\\MemberManagementSystem.Web.csproj",
       "packagesPath": "C:\\Users\\Opus PC\\.nuget\\packages\\",
-      "outputPath": "D:\\Hajera\\MemberManagementSystem\\MemberManagementSystem.Web\\obj\\",
+      "outputPath": "D:\\MemberManagementSystem\\MemberManagementSystem.Web\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
