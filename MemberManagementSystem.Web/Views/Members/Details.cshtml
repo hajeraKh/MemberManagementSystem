@@ -1,0 +1,316 @@
+@model MemberManagementSystem.Web.Models.ViewModels.MemberDetailsViewModel
+@{
+    ViewData["Title"] = Model.Member.FullName + " - Profile";
+}
+
+<div class="mb-4 d-flex flex-wrap align-items-center justify-content-between gap-3">
+    <div>
+        <a asp-action="Index" class="text-decoration-none text-muted small">
+            <i class="fa-solid fa-arrow-left me-1"></i> Back to Members List
+        </a>
+        <h3 class="fw-bold mt-1 mb-0">@Model.Member.FullName</h3>
+        <span class="badge bg-light text-dark border font-monospace me-2">@Model.Member.MemberCode</span>
+        <span class="badge @(Model.Member.Status == "Active" ? "bg-success" : "bg-secondary")">@Model.Member.Status</span>
+    </div>
+
+    <div class="d-flex flex-wrap gap-2">
+        <a asp-action="Card" asp-route-id="@Model.Member.MemberId" target="_blank" class="btn btn-outline-secondary">
+            <i class="fa-solid fa-id-badge me-1"></i> Print ID Card
+        </a>
+        <a asp-controller="Documents" asp-action="Upload" asp-route-memberId="@Model.Member.MemberId" asp-route-returnTo="member" class="btn btn-outline-primary">
+            <i class="fa-solid fa-file-arrow-up me-1"></i> Upload Document
+        </a>
+        <a asp-controller="Payments" asp-action="Create" asp-route-memberId="@Model.Member.MemberId" asp-route-returnTo="member" class="btn btn-outline-success">
+            <i class="fa-solid fa-receipt me-1"></i> Record Fee
+        </a>
+        <a asp-action="Edit" asp-route-id="@Model.Member.MemberId" class="btn btn-primary">
+            <i class="fa-solid fa-pen-to-square me-1"></i> Edit Member
+        </a>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <!-- Member Profile Card -->
+    <div class="col-lg-4">
+        <div class="card shadow-sm h-100">
+            <div class="card-body text-center p-4">
+                @if (!string.IsNullOrEmpty(Model.Member.PhotoPath))
+                {
+                    <img src="@Model.Member.PhotoPath" class="rounded-4 border shadow-sm mb-3" style="width: 140px; height: 140px; object-fit: cover;" alt="@Model.Member.FullName" />
+                }
+                else
+                {
+                    <div class="rounded-4 bg-light d-inline-flex align-items-center justify-content-center text-secondary border mb-3" style="width: 140px; height: 140px;">
+                        <i class="fa-solid fa-user fs-1"></i>
+                    </div>
+                }
+                <h5 class="fw-bold mb-1">@Model.Member.FullName</h5>
+                <p class="text-muted small mb-3">@Model.Member.District, @Model.Member.Division</p>
+
+                <!-- Status Toggle Form -->
+                <form asp-action="ToggleStatus" asp-route-id="@Model.Member.MemberId" method="post" class="d-inline">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-sm @(Model.Member.Status == "Active" ? "btn-outline-warning" : "btn-outline-success")">
+                        <i class="fa-solid fa-power-off me-1"></i> Mark as @(Model.Member.Status == "Active" ? "Inactive" : "Active")
+                    </button>
+                </form>
+
+                <hr class="my-3" />
+
+                <div class="row g-2 text-start">
+                    <div class="col-6">
+                        <div class="p-2 bg-light rounded text-center">
+                            <small class="text-muted d-block">Total Fees Paid</small>
+                            <span class="fw-bold text-success">৳@Model.TotalPaidAmount.ToString("N0")</span>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="p-2 bg-light rounded text-center">
+                            <small class="text-muted d-block">Documents</small>
+                            <span class="fw-bold text-primary">@Model.TotalDocumentsCount Files</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-muted small text-start mt-3">
+                    <div><i class="fa-regular fa-calendar text-primary me-2"></i><strong>Member Since:</strong> @Model.Member.JoiningDate.ToString("dd MMM, yyyy")</div>
+                    <div class="mt-1"><i class="fa-regular fa-clock text-muted me-2"></i><strong>Registered:</strong> @Model.Member.CreatedAt.ToString("g")</div>
+                </div>
+
+                @if (User.IsInRole("Admin"))
+                {
+                    <hr class="my-3" />
+                    <form asp-action="Delete" asp-route-id="@Model.Member.MemberId" method="post" onsubmit="return confirm('WARNING: Are you sure you want to permanently delete this member and all associated documents and payments?');">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-sm btn-outline-danger w-100">
+                            <i class="fa-solid fa-trash me-1"></i> Delete Member Account
+                        </button>
+                    </form>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Personal & Contact Information Details -->
+    <div class="col-lg-8">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-white">
+                <i class="fa-solid fa-user-shield text-primary me-2"></i>ব্যক্তিগত ও যোগাযোগের বিবরণ (Personal & Contact Details)
+            </div>
+            <div class="card-body p-4">
+                <div class="row g-3">
+                    <div class="col-sm-6">
+                        <small class="text-muted d-block">সদস্য আইডি (Member ID)</small>
+                        <div class="fw-semibold font-monospace">@Model.Member.MemberCode</div>
+                    </div>
+                    <div class="col-sm-6">
+                        <small class="text-muted d-block">পূর্ণ নাম (Full Name)</small>
+                        <div class="fw-semibold">@Model.Member.FullName</div>
+                    </div>
+                    <div class="col-sm-6">
+                        <small class="text-muted d-block">পিতার নাম (Father's Name)</small>
+                        <div class="fw-semibold">@(Model.Member.FatherName ?? "-")</div>
+                    </div>
+                    <div class="col-sm-6">
+                        <small class="text-muted d-block">মাতার নাম (Mother's Name)</small>
+                        <div class="fw-semibold">@(Model.Member.MotherName ?? "-")</div>
+                    </div>
+                    <div class="col-sm-6">
+                        <small class="text-muted d-block">জন্ম তারিখ (Date of Birth)</small>
+                        <div class="fw-semibold">@(Model.Member.DateOfBirth?.ToString("dd MMM yyyy") ?? "-")</div>
+                    </div>
+                    <div class="col-sm-6">
+                        <small class="text-muted d-block">জাতীয় পরিচয়পত্র (NID)</small>
+                        <div class="fw-semibold">@(Model.Member.NationalId ?? "-")</div>
+                    </div>
+                    <div class="col-sm-6">
+                        <small class="text-muted d-block">মোবাইল নম্বর (Mobile)</small>
+                        <div class="fw-semibold text-primary"><i class="fa-solid fa-phone me-1 small"></i>@Model.Member.MobileNumber</div>
+                    </div>
+                    <div class="col-sm-6">
+                        <small class="text-muted d-block">ইমেইল (Email)</small>
+                        <div class="fw-semibold">@(Model.Member.Email ?? "-")</div>
+                    </div>
+                    <div class="col-sm-6">
+                        <small class="text-muted d-block">বিভাগ ও জেলা (Division & District)</small>
+                        <div class="fw-semibold">@Model.Member.District, @Model.Member.Division</div>
+                    </div>
+                    <div class="col-sm-6">
+                        <small class="text-muted d-block">অবস্থা (Status)</small>
+                        <div>
+                            <span class="badge @(Model.Member.Status == "Active" ? "bg-success" : "bg-secondary")">@Model.Member.Status</span>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <small class="text-muted d-block">ঠিকানা (Full Address)</small>
+                        <div class="fw-semibold">@(Model.Member.Address ?? "-")</div>
+                    </div>
+                    @if (!string.IsNullOrEmpty(Model.Member.Remarks))
+                    {
+                        <div class="col-12">
+                            <small class="text-muted d-block">মন্তব্য (Remarks)</small>
+                            <div class="p-2 bg-light rounded text-muted small">@Model.Member.Remarks</div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Tabs for Documents and Payments -->
+<div class="card shadow-sm">
+    <div class="card-header bg-white">
+        <ul class="nav nav-tabs card-header-tabs" id="memberTab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active fw-semibold" id="docs-tab" data-bs-toggle="tab" data-bs-target="#docs-pane" type="button" role="tab">
+                    <i class="fa-solid fa-folder-open text-primary me-2"></i>ডকুমেন্টস (Documents - @Model.Member.Documents.Count)
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link fw-semibold" id="payments-tab" data-bs-toggle="tab" data-bs-target="#payments-pane" type="button" role="tab">
+                    <i class="fa-solid fa-money-check-dollar text-success me-2"></i>ফি ও পেমেন্ট হিস্ট্রি (Payment History - @Model.Member.Payments.Count)
+                </button>
+            </li>
+        </ul>
+    </div>
+
+    <div class="card-body p-0">
+        <div class="tab-content" id="memberTabContent">
+            <!-- Documents Tab Pane -->
+            <div class="tab-pane fade show active p-3" id="docs-pane" role="tabpanel">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h6 class="fw-bold mb-0">সদস্যের আপলোডকৃত ডকুমেন্টস (Uploaded Documents)</h6>
+                    <a asp-controller="Documents" asp-action="Upload" asp-route-memberId="@Model.Member.MemberId" asp-route-returnTo="member" class="btn btn-sm btn-primary">
+                        <i class="fa-solid fa-plus me-1"></i> Upload New Document
+                    </a>
+                </div>
+
+                @if (Model.Member.Documents.Any())
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light small">
+                                <tr>
+                                    <th>Document Type</th>
+                                    <th>File Name</th>
+                                    <th>Upload Date</th>
+                                    <th>Size</th>
+                                    <th>Remarks</th>
+                                    <th class="text-end">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var doc in Model.Member.Documents)
+                                {
+                                    <tr>
+                                        <td><span class="badge bg-light text-dark border">@doc.DocumentType</span></td>
+                                        <td>
+                                            <i class="fa-solid fa-file text-secondary me-2"></i>@doc.FileName
+                                        </td>
+                                        <td>@doc.UploadDate.ToString("dd MMM yyyy, hh:mm tt")</td>
+                                        <td>@(doc.FileSize.HasValue ? $"{(doc.FileSize.Value / 1024.0):F1} KB" : "-")</td>
+                                        <td><small class="text-muted">@(doc.Remarks ?? "-")</small></td>
+                                        <td class="text-end">
+                                            <a asp-controller="Documents" asp-action="Download" asp-route-id="@doc.DocumentId" class="btn btn-sm btn-outline-primary" title="Download">
+                                                <i class="fa-solid fa-download"></i>
+                                            </a>
+                                            @if (User.IsInRole("Admin") || User.IsInRole("DataEntry"))
+                                            {
+                                                <form asp-controller="Documents" asp-action="Delete" asp-route-id="@doc.DocumentId" asp-route-returnTo="member" asp-route-memberId="@Model.Member.MemberId" method="post" class="d-inline" onsubmit="return confirm('Delete this document?');">
+                                                    @Html.AntiForgeryToken()
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete">
+                                                        <i class="fa-solid fa-trash"></i>
+                                                    </button>
+                                                </form>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="text-center py-4 text-muted">
+                        <i class="fa-regular fa-folder-open fs-2 mb-2 text-secondary opacity-50"></i>
+                        <p class="mb-2">No documents uploaded for this member yet.</p>
+                        <a asp-controller="Documents" asp-action="Upload" asp-route-memberId="@Model.Member.MemberId" asp-route-returnTo="member" class="btn btn-sm btn-outline-primary">
+                            Upload NID / Passport / Certificate
+                        </a>
+                    </div>
+                }
+            </div>
+
+            <!-- Payments Tab Pane -->
+            <div class="tab-pane fade p-3" id="payments-pane" role="tabpanel">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h6 class="fw-bold mb-0">পেমেন্ট ও ফি আদায়ের বিবরণ (Fee Payment Records)</h6>
+                    <a asp-controller="Payments" asp-action="Create" asp-route-memberId="@Model.Member.MemberId" asp-route-returnTo="member" class="btn btn-sm btn-success">
+                        <i class="fa-solid fa-plus me-1"></i> Record New Payment
+                    </a>
+                </div>
+
+                @if (Model.Member.Payments.Any())
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light small">
+                                <tr>
+                                    <th>Invoice No</th>
+                                    <th>Fee Type</th>
+                                    <th>Amount</th>
+                                    <th>Payment Date</th>
+                                    <th>Method</th>
+                                    <th>Transaction ID</th>
+                                    <th>Received By</th>
+                                    <th class="text-end">Receipt</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var pay in Model.Member.Payments)
+                                {
+                                    <tr>
+                                        <td><span class="badge bg-light text-dark border font-monospace">@pay.InvoiceNo</span></td>
+                                        <td>@pay.FeeType</td>
+                                        <td class="fw-bold text-success">৳@pay.Amount.ToString("N2")</td>
+                                        <td>@pay.PaymentDate.ToString("dd MMM yyyy")</td>
+                                        <td><span class="badge bg-info-subtle text-info">@pay.PaymentMethod</span></td>
+                                        <td><small class="font-monospace text-muted">@(pay.TransactionId ?? "-")</small></td>
+                                        <td><small class="text-muted">@pay.ReceivedBy</small></td>
+                                        <td class="text-end">
+                                            <a asp-controller="Payments" asp-action="Invoice" asp-route-id="@pay.PaymentId" class="btn btn-sm btn-outline-secondary" title="View / Print Money Receipt">
+                                                <i class="fa-solid fa-print"></i> Receipt
+                                            </a>
+                                            @if (User.IsInRole("Admin"))
+                                            {
+                                                <form asp-controller="Payments" asp-action="Delete" asp-route-id="@pay.PaymentId" asp-route-returnTo="member" asp-route-memberId="@Model.Member.MemberId" method="post" class="d-inline" onsubmit="return confirm('Delete this payment record?');">
+                                                    @Html.AntiForgeryToken()
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete">
+                                                        <i class="fa-solid fa-trash"></i>
+                                                    </button>
+                                                </form>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="text-center py-4 text-muted">
+                        <i class="fa-solid fa-receipt fs-2 mb-2 text-secondary opacity-50"></i>
+                        <p class="mb-2">No payments recorded for this member yet.</p>
+                        <a asp-controller="Payments" asp-action="Create" asp-route-memberId="@Model.Member.MemberId" asp-route-returnTo="member" class="btn btn-sm btn-outline-success">
+                            Record Registration / Monthly Fee
+                        </a>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+

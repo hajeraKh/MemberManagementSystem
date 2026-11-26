@@ -1,0 +1,70 @@
+@model MemberManagementSystem.Web.Models.ViewModels.DocumentUploadViewModel
+@{
+    ViewData["Title"] = "Upload Document";
+}
+
+<div class="mb-4">
+    <a asp-action="Index" class="text-decoration-none text-muted small">
+        <i class="fa-solid fa-arrow-left me-1"></i> Back to Documents
+    </a>
+    <h3 class="fw-bold mt-1">ডকুমেন্ট আপলোড (Upload Document)</h3>
+    <p class="text-muted small">Attach verification documents, ID copies, or certificates for a member</p>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card shadow-sm border-0">
+            <div class="card-body p-4">
+                <form asp-action="Upload" method="post" enctype="multipart/form-data">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" asp-for="ReturnTo" />
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="MemberId" class="form-label fw-semibold small">সদস্য নির্বাচন করুন (Select Member) *</label>
+                        <select asp-for="MemberId" class="form-select" asp-items="ViewBag.MemberList">
+                            <option value="">-- Select Member --</option>
+                        </select>
+                        <span asp-validation-for="MemberId" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="DocumentType" class="form-label fw-semibold small">ডকুমেন্টের ধরন (Document Type) *</label>
+                        <select asp-for="DocumentType" class="form-select">
+                            <option value="">-- Select Type --</option>
+                            <option value="National ID (NID)">National ID (NID / এনআইডি কার্ড)</option>
+                            <option value="Passport">Passport (পাসপোর্ট)</option>
+                            <option value="Birth Certificate">Birth Certificate (জন্ম নিবন্ধন সনদ)</option>
+                            <option value="Educational Certificate">Educational Certificate (শিক্ষাগত সনদ)</option>
+                            <option value="Photo">Photograph (ছবি)</option>
+                            <option value="Citizenship Certificate">Citizenship Certificate (নাগরিকত্ব সনদ)</option>
+                            <option value="Other">Other Document (অন্যান্য)</option>
+                        </select>
+                        <span asp-validation-for="DocumentType" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="File" class="form-label fw-semibold small">ফাইল নির্বাচন করুন (Upload File: PDF / JPG / PNG) *</label>
+                        <input asp-for="File" type="file" class="form-control" accept=".pdf,.jpg,.jpeg,.png,.docx" />
+                        <span asp-validation-for="File" class="text-danger small"></span>
+                        <div class="form-text small">Supported formats: PDF, JPG, PNG, DOCX (Max size: 10MB)</div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label asp-for="Remarks" class="form-label fw-semibold small">মন্তব্য (Remarks / Notes)</label>
+                        <textarea asp-for="Remarks" rows="3" class="form-control" placeholder="e.g. Attested copy, original checked, expiry date..."></textarea>
+                        <span asp-validation-for="Remarks" class="text-danger small"></span>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2 pt-3 border-top">
+                        <a asp-action="Index" class="btn btn-light border px-4">Cancel</a>
+                        <button type="submit" class="btn btn-primary px-4">
+                            <i class="fa-solid fa-cloud-arrow-up me-1"></i> Upload Document
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+

@@ -1,0 +1,150 @@
+@model MemberManagementSystem.Web.Models.ViewModels.SearchViewModel
+@{
+    ViewData["Title"] = "Advanced Search";
+}
+
+<div class="mb-4">
+    <h3 class="fw-bold mb-1">অনুসন্ধান সুবিধা (Advanced Search)</h3>
+    <p class="text-muted small">Multi-criteria filtering by name, mobile, ID, district, division or status</p>
+</div>
+
+<!-- Search Form Card -->
+<div class="card shadow-sm mb-4 border-0">
+    <div class="card-header bg-white">
+        <i class="fa-solid fa-sliders text-primary me-2"></i>অনুসন্ধানের মাপকাঠি (Search Filters)
+    </div>
+    <div class="card-body p-4">
+        <form method="get" asp-action="Index">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label small fw-semibold">সাধারণ কি-ওয়ার্ড (Keyword)</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light"><i class="fa-solid fa-search text-muted"></i></span>
+                        <input type="text" asp-for="Query" class="form-control" placeholder="Search anything..." />
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label small fw-semibold">সদস্য আইডি (Member ID)</label>
+                    <input type="text" asp-for="MemberCode" class="form-control" placeholder="e.g. MEM-1001" />
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label small fw-semibold">নাম দ্বারা অনুসন্ধান (Full Name)</label>
+                    <input type="text" asp-for="FullName" class="form-control" placeholder="Member name" />
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label small fw-semibold">মোবাইল নম্বর (Mobile Number)</label>
+                    <input type="text" asp-for="MobileNumber" class="form-control" placeholder="e.g. 017..." />
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label small fw-semibold">বিভাগ (Division)</label>
+                    <select asp-for="Division" class="form-select">
+                        <option value="">All Divisions (সকল বিভাগ)</option>
+                        @if (ViewBag.Divisions != null)
+                        {
+                            foreach (string div in ViewBag.Divisions)
+                            {
+                                <option value="@div">@div</option>
+                            }
+                        }
+                    </select>
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label small fw-semibold">জেলা (District)</label>
+                    <select asp-for="District" class="form-select">
+                        <option value="">All Districts (সকল জেলা)</option>
+                        @if (ViewBag.Districts != null)
+                        {
+                            foreach (string dist in ViewBag.Districts)
+                            {
+                                <option value="@dist">@dist</option>
+                            }
+                        }
+                    </select>
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label small fw-semibold">সদস্যের অবস্থা (Status)</label>
+                    <select asp-for="Status" class="form-select">
+                        <option value="">All Status (সকল)</option>
+                        <option value="Active">Active (সক্রিয়)</option>
+                        <option value="Inactive">Inactive (নিষ্ক্রিয়)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
+                <a asp-action="Index" class="btn btn-light border px-4">Clear Filters</a>
+                <button type="submit" class="btn btn-primary px-4">
+                    <i class="fa-solid fa-magnifying-glass me-1"></i> Search Members
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Search Results -->
+<div class="card shadow-sm">
+    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+        <span><i class="fa-solid fa-list-check text-primary me-2"></i>ফলাফল (Search Results: <strong>@Model.TotalMatches</strong> found)</span>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Member ID</th>
+                    <th>Full Name</th>
+                    <th>Mobile</th>
+                    <th>NID</th>
+                    <th>District</th>
+                    <th>Division</th>
+                    <th>Status</th>
+                    <th class="text-end">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Results.Any())
+                {
+                    foreach (var m in Model.Results)
+                    {
+                        <tr>
+                            <td><span class="badge bg-light text-dark border font-monospace">@m.MemberCode</span></td>
+                            <td class="fw-semibold">
+                                <a asp-controller="Members" asp-action="Details" asp-route-id="@m.MemberId" class="text-decoration-none text-dark">
+                                    @m.FullName
+                                </a>
+                            </td>
+                            <td>@m.MobileNumber</td>
+                            <td><small class="font-monospace text-muted">@(m.NationalId ?? "-")</small></td>
+                            <td>@m.District</td>
+                            <td>@m.Division</td>
+                            <td>
+                                <span class="badge @(m.Status == "Active" ? "bg-success" : "bg-secondary")">@m.Status</span>
+                            </td>
+                            <td class="text-end">
+                                <a asp-controller="Members" asp-action="Details" asp-route-id="@m.MemberId" class="btn btn-sm btn-outline-primary">
+                                    <i class="fa-solid fa-user me-1"></i> View Profile
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="8" class="text-center py-5 text-muted">
+                            <i class="fa-solid fa-magnifying-glass fs-1 d-block mb-2 text-secondary opacity-50"></i>
+                            No members matched your search query. Try broadening your criteria.
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+

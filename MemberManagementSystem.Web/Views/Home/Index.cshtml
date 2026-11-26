@@ -1,0 +1,283 @@
+@model MemberManagementSystem.Web.Models.ViewModels.DashboardViewModel
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+        <h3 class="fw-bold mb-1">ড্যাশবোর্ড (System Dashboard)</h3>
+        <p class="text-muted small mb-0">Member Management & Document Database System Overview</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a asp-controller="Members" asp-action="Create" class="btn btn-sm btn-primary">
+            <i class="fa-solid fa-user-plus me-1"></i> Add Member
+        </a>
+        <a asp-controller="Documents" asp-action="Upload" class="btn btn-sm btn-outline-primary">
+            <i class="fa-solid fa-cloud-arrow-up me-1"></i> Upload File
+        </a>
+        <a asp-controller="Payments" asp-action="Create" class="btn btn-sm btn-outline-success">
+            <i class="fa-solid fa-receipt me-1"></i> Record Fee
+        </a>
+    </div>
+</div>
+
+<!-- Stat Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-sm-6 col-xl-3">
+        <div class="card p-3 border-start border-4 border-primary">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <div class="text-muted small fw-semibold text-uppercase">মোট সদস্য (Total)</div>
+                    <div class="fs-3 fw-bold mt-1">@Model.TotalMembers</div>
+                    <div class="small text-muted mt-1"><i class="fa-solid fa-users text-primary me-1"></i> Registered Members</div>
+                </div>
+                <div class="bg-primary-subtle text-primary p-3 rounded-circle">
+                    <i class="fa-solid fa-users fs-4"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-sm-6 col-xl-3">
+        <div class="card p-3 border-start border-4 border-success">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <div class="text-muted small fw-semibold text-uppercase">সক্রিয় সদস্য (Active)</div>
+                    <div class="fs-3 fw-bold mt-1 text-success">@Model.ActiveMembers</div>
+                    <div class="small text-muted mt-1"><span class="badge bg-secondary">@Model.InactiveMembers Inactive</span></div>
+                </div>
+                <div class="bg-success-subtle text-success p-3 rounded-circle">
+                    <i class="fa-solid fa-user-check fs-4"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-sm-6 col-xl-3">
+        <div class="card p-3 border-start border-4 border-info">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <div class="text-muted small fw-semibold text-uppercase">নতুন সদস্য (This Month)</div>
+                    <div class="fs-3 fw-bold mt-1 text-info">@Model.NewMembersThisMonth</div>
+                    <div class="small text-muted mt-1"><i class="fa-solid fa-calendar-plus text-info me-1"></i> Joined this month</div>
+                </div>
+                <div class="bg-info-subtle text-info p-3 rounded-circle">
+                    <i class="fa-solid fa-user-plus fs-4"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-sm-6 col-xl-3">
+        <div class="card p-3 border-start border-4 border-warning">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <div class="text-muted small fw-semibold text-uppercase">মোট আদায় (Collections)</div>
+                    <div class="fs-3 fw-bold mt-1 text-dark">৳@Model.TotalCollections.ToString("N0")</div>
+                    <div class="small text-muted mt-1"><i class="fa-solid fa-arrow-trend-up text-success me-1"></i> Month: ৳@Model.CollectionsThisMonth.ToString("N0")</div>
+                </div>
+                <div class="bg-warning-subtle text-warning p-3 rounded-circle">
+                    <i class="fa-solid fa-bangladeshi-taka-sign fs-4"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Row -->
+<div class="row g-3 mb-4">
+    <div class="col-lg-8">
+        <div class="card h-100">
+            <div class="card-header d-flex align-items-center justify-content-between">
+                <span><i class="fa-solid fa-chart-line text-primary me-2"></i>মাসিক ফি আদায় চিত্র (Monthly Collection Trend)</span>
+                <span class="badge bg-light text-muted border">Past 6 Months</span>
+            </div>
+            <div class="card-body">
+                <canvas id="collectionChart" style="max-height: 280px;"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <span><i class="fa-solid fa-location-dot text-danger me-2"></i>জেলা ভিত্তিক বণ্টন (District Breakdown)</span>
+            </div>
+            <div class="card-body">
+                <canvas id="districtChart" style="max-height: 280px;"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Activities Row -->
+<div class="row g-3">
+    <!-- Recent Members -->
+    <div class="col-lg-4">
+        <div class="card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span><i class="fa-solid fa-user-group text-primary me-2"></i>সাম্প্রতিক সদস্য (Recent Members)</span>
+                <a asp-controller="Members" asp-action="Index" class="small text-decoration-none">View All</a>
+            </div>
+            <div class="card-body p-0">
+                <div class="list-group list-group-flush">
+                    @if (Model.RecentMembers.Any())
+                    {
+                        @foreach (var m in Model.RecentMembers)
+                        {
+                            <a asp-controller="Members" asp-action="Details" asp-route-id="@m.MemberId" class="list-group-item list-group-item-action d-flex align-items-center gap-3 py-2">
+                                @if (!string.IsNullOrEmpty(m.PhotoPath))
+                                {
+                                    <img src="@m.PhotoPath" class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;" alt="" />
+                                }
+                                else
+                                {
+                                    <div class="rounded-circle bg-light d-flex align-items-center justify-content-center text-secondary border" style="width: 40px; height: 40px;">
+                                        <i class="fa-solid fa-user"></i>
+                                    </div>
+                                }
+                                <div class="flex-grow-1 text-truncate">
+                                    <div class="fw-semibold small text-truncate">@m.FullName</div>
+                                    <div class="text-muted" style="font-size: 0.75rem;">@m.MemberCode | @m.District</div>
+                                </div>
+                                <span class="badge @(m.Status == "Active" ? "bg-success" : "bg-secondary")" style="font-size: 0.65rem;">@m.Status</span>
+                            </a>
+                        }
+                    }
+                    else
+                    {
+                        <div class="p-3 text-muted small text-center">No members found.</div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Payments -->
+    <div class="col-lg-4">
+        <div class="card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span><i class="fa-solid fa-receipt text-success me-2"></i>সাম্প্রতিক পেমেন্ট (Recent Payments)</span>
+                <a asp-controller="Payments" asp-action="Index" class="small text-decoration-none">View All</a>
+            </div>
+            <div class="card-body p-0">
+                <div class="list-group list-group-flush">
+                    @if (Model.RecentPayments.Any())
+                    {
+                        @foreach (var p in Model.RecentPayments)
+                        {
+                            <a asp-controller="Payments" asp-action="Invoice" asp-route-id="@p.PaymentId" class="list-group-item list-group-item-action d-flex align-items-center justify-content-between py-2">
+                                <div>
+                                    <div class="fw-semibold small">@p.Member?.FullName</div>
+                                    <div class="text-muted" style="font-size: 0.75rem;">@p.FeeType &bull; @p.PaymentMethod</div>
+                                </div>
+                                <div class="text-end">
+                                    <div class="fw-bold text-success small">৳@p.Amount.ToString("N0")</div>
+                                    <div class="text-muted" style="font-size: 0.7rem;">@p.PaymentDate.ToString("dd MMM")</div>
+                                </div>
+                            </a>
+                        }
+                    }
+                    else
+                    {
+                        <div class="p-3 text-muted small text-center">No payments recorded.</div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Uploads -->
+    <div class="col-lg-4">
+        <div class="card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span><i class="fa-solid fa-file-shield text-info me-2"></i>সাম্প্রতিক আপলোড (Recent Uploads)</span>
+                <a asp-controller="Documents" asp-action="Index" class="small text-decoration-none">View All</a>
+            </div>
+            <div class="card-body p-0">
+                <div class="list-group list-group-flush">
+                    @if (Model.RecentDocuments.Any())
+                    {
+                        @foreach (var d in Model.RecentDocuments)
+                        {
+                            <div class="list-group-item d-flex align-items-center justify-content-between py-2">
+                                <div class="text-truncate" style="max-width: 220px;">
+                                    <div class="fw-semibold small text-truncate">@d.FileName</div>
+                                    <div class="text-muted" style="font-size: 0.75rem;">@d.DocumentType &bull; @d.Member?.FullName</div>
+                                </div>
+                                <a asp-controller="Documents" asp-action="Download" asp-route-id="@d.DocumentId" class="btn btn-sm btn-outline-secondary p-1 px-2" title="Download">
+                                    <i class="fa-solid fa-download"></i>
+                                </a>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="p-3 text-muted small text-center">No documents uploaded.</div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    // Monthly Collection Chart
+    const monthlyLabels = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.MonthlyLabels));
+    const monthlyData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.MonthlyCollections));
+
+    const ctxCollection = document.getElementById('collectionChart').getContext('2d');
+    new Chart(ctxCollection, {
+        type: 'bar',
+        data: {
+            labels: monthlyLabels,
+            datasets: [{
+                label: 'Collection (BDT)',
+                data: monthlyData,
+                backgroundColor: 'rgba(37, 99, 235, 0.8)',
+                borderColor: 'rgba(37, 99, 235, 1)',
+                borderWidth: 1,
+                borderRadius: 6
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(val) { return '৳' + val.toLocaleString(); }
+                    }
+                }
+            }
+        }
+    });
+
+    // District Breakdown Chart
+    const districtLabels = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.DistrictLabels));
+    const districtCounts = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.DistrictCounts));
+
+    const ctxDistrict = document.getElementById('districtChart').getContext('2d');
+    new Chart(ctxDistrict, {
+        type: 'doughnut',
+        data: {
+            labels: districtLabels.length ? districtLabels : ['No Data'],
+            datasets: [{
+                data: districtCounts.length ? districtCounts : [1],
+                backgroundColor: ['#2563eb', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#64748b']
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+</script>
+}

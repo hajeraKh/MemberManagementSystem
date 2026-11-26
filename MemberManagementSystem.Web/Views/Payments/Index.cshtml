@@ -1,0 +1,136 @@
+@model IEnumerable<MemberManagementSystem.Web.Models.Payment>
+@{
+    ViewData["Title"] = "Payments & Fees";
+}
+
+<div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+    <div>
+        <h3 class="fw-bold mb-1">পেমেন্ট ও ফি আদায় (Payments & Fee Records)</h3>
+        <p class="text-muted small mb-0">Record and track membership dues, registration fees and invoices</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a asp-action="Create" class="btn btn-success">
+            <i class="fa-solid fa-receipt me-1"></i> Record New Payment
+        </a>
+    </div>
+</div>
+
+<!-- Summary Card -->
+<div class="card bg-success text-white mb-4 border-0 shadow-sm">
+    <div class="card-body p-3 d-flex flex-wrap align-items-center justify-content-between gap-3">
+        <div>
+            <div class="small text-uppercase opacity-75">Filtered Payments Total (আদায়কৃত মোট ফি)</div>
+            <div class="fs-2 fw-bold">৳@(((decimal)ViewBag.TotalAmount).ToString("N2"))</div>
+        </div>
+        <div>
+            <span class="badge bg-white text-success fs-6 px-3 py-2">
+                <i class="fa-solid fa-file-invoice me-1"></i> @Model.Count() Transactions
+            </span>
+        </div>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="card mb-4">
+    <div class="card-body p-3">
+        <form method="get" asp-action="Index" class="row g-2 align-items-center">
+            <div class="col-md-3">
+                <select name="memberId" class="form-select" asp-items="ViewBag.Members">
+                    <option value="">All Members (সকল সদস্য)</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <select name="feeType" class="form-select">
+                    <option value="">All Fee Types (ফি এর ধরন)</option>
+                    <option value="Registration Fee" selected="@(ViewBag.SelectedFeeType == "Registration Fee")">Registration Fee (রেজিস্ট্রেশন ফি)</option>
+                    <option value="Monthly Fee" selected="@(ViewBag.SelectedFeeType == "Monthly Fee")">Monthly Fee (মাসিক ফি)</option>
+                    <option value="Annual Fee" selected="@(ViewBag.SelectedFeeType == "Annual Fee")">Annual Fee (বার্ষিক ফি)</option>
+                    <option value="Renewal Fee" selected="@(ViewBag.SelectedFeeType == "Renewal Fee")">Renewal Fee (নবায়ন ফি)</option>
+                    <option value="Donation" selected="@(ViewBag.SelectedFeeType == "Donation")">Donation (অনুদান)</option>
+                    <option value="Other" selected="@(ViewBag.SelectedFeeType == "Other")">Other (অন্যান্য)</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <input type="date" name="fromDate" class="form-control" placeholder="From Date" value="@ViewBag.FromDate" />
+            </div>
+            <div class="col-md-2">
+                <input type="date" name="toDate" class="form-control" placeholder="To Date" value="@ViewBag.ToDate" />
+            </div>
+            <div class="col-md-2 d-flex gap-2">
+                <button type="submit" class="btn btn-primary w-100">Filter</button>
+                <a asp-action="Index" class="btn btn-light border"><i class="fa-solid fa-rotate-left"></i></a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Payments Table -->
+<div class="card">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Invoice No</th>
+                    <th>Member Name</th>
+                    <th>Fee Type</th>
+                    <th>Amount</th>
+                    <th>Payment Date</th>
+                    <th>Method</th>
+                    <th>Transaction ID</th>
+                    <th>Received By</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Any())
+                {
+                    foreach (var p in Model)
+                    {
+                        <tr>
+                            <td><span class="badge bg-light text-dark border font-monospace">@p.InvoiceNo</span></td>
+                            <td>
+                                @if (p.Member != null)
+                                {
+                                    <a asp-controller="Members" asp-action="Details" asp-route-id="@p.MemberId" class="text-decoration-none fw-semibold text-dark">
+                                        @p.Member.FullName
+                                    </a>
+                                    <small class="text-muted d-block font-monospace">@p.Member.MemberCode</small>
+                                }
+                            </td>
+                            <td><span class="badge bg-secondary-subtle text-secondary border">@p.FeeType</span></td>
+                            <td><span class="fw-bold text-success">৳@p.Amount.ToString("N2")</span></td>
+                            <td>@p.PaymentDate.ToString("dd MMM yyyy")</td>
+                            <td><span class="badge bg-info-subtle text-info">@p.PaymentMethod</span></td>
+                            <td><small class="font-monospace text-muted">@(p.TransactionId ?? "-")</small></td>
+                            <td><small class="text-muted">@p.ReceivedBy</small></td>
+                            <td class="text-end">
+                                <a asp-action="Invoice" asp-route-id="@p.PaymentId" class="btn btn-sm btn-outline-secondary" title="View / Print Money Receipt">
+                                    <i class="fa-solid fa-receipt"></i>
+                                </a>
+                                @if (User.IsInRole("Admin"))
+                                {
+                                    <form asp-action="Delete" asp-route-id="@p.PaymentId" method="post" class="d-inline" onsubmit="return confirm('Delete this payment?');">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete">
+                                            <i class="fa-solid fa-trash"></i>
+                                        </button>
+                                    </form>
+                                }
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="9" class="text-center py-5 text-muted">
+                            <i class="fa-solid fa-receipt fs-1 d-block mb-2 text-secondary opacity-50"></i>
+                            No payments found.
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+

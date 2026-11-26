@@ -1,0 +1,164 @@
+@model MemberManagementSystem.Web.Models.ViewModels.MemberFormViewModel
+@{
+    ViewData["Title"] = "Edit Member";
+}
+
+<div class="mb-4">
+    <a asp-action="Details" asp-route-id="@Model.MemberId" class="text-decoration-none text-muted small">
+        <i class="fa-solid fa-arrow-left me-1"></i> Back to Profile
+    </a>
+    <h3 class="fw-bold mt-1">সদস্য তথ্য সম্পাদনা (Edit Member)</h3>
+    <p class="text-muted small">Update profile details for @Model.FullName (@Model.MemberCode)</p>
+</div>
+
+<div class="card shadow-sm border-0">
+    <div class="card-body p-4">
+        <form asp-action="Edit" asp-route-id="@Model.MemberId" method="post" enctype="multipart/form-data">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="MemberId" />
+            <input type="hidden" asp-for="ExistingPhotoPath" />
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+            <div class="row g-4">
+                <!-- Left Column: Photo -->
+                <div class="col-lg-3 text-center">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold small d-block">Photograph</label>
+                        <div class="position-relative d-inline-block">
+                            @if (!string.IsNullOrEmpty(Model.ExistingPhotoPath))
+                            {
+                                <img id="photoPreview" src="@Model.ExistingPhotoPath" class="rounded-3 border shadow-sm" style="width: 150px; height: 150px; object-fit: cover;" alt="Preview" />
+                            }
+                            else
+                            {
+                                <img id="photoPreview" src="https://via.placeholder.com/150x150?text=No+Photo" class="rounded-3 border shadow-sm" style="width: 150px; height: 150px; object-fit: cover;" alt="Preview" />
+                            }
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <input asp-for="PhotoFile" type="file" class="form-control form-control-sm" accept=".jpg,.jpeg,.png,.webp" onchange="previewImage(this);" />
+                        <span asp-validation-for="PhotoFile" class="text-danger small"></span>
+                        <small class="text-muted d-block mt-1">Leave empty to keep current photo</small>
+                    </div>
+                </div>
+
+                <!-- Right Column: Personal & Contact Details -->
+                <div class="col-lg-9">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label asp-for="MemberCode" class="form-label fw-semibold small">Member ID</label>
+                            <input asp-for="MemberCode" class="form-control font-monospace bg-light" readonly />
+                        </div>
+
+                        <div class="col-md-8">
+                            <label asp-for="FullName" class="form-label fw-semibold small">Full Name *</label>
+                            <input asp-for="FullName" class="form-control" />
+                            <span asp-validation-for="FullName" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="FatherName" class="form-label fw-semibold small">Father's Name</label>
+                            <input asp-for="FatherName" class="form-control" />
+                            <span asp-validation-for="FatherName" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="MotherName" class="form-label fw-semibold small">Mother's Name</label>
+                            <input asp-for="MotherName" class="form-control" />
+                            <span asp-validation-for="MotherName" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label asp-for="DateOfBirth" class="form-label fw-semibold small">Date of Birth</label>
+                            <input asp-for="DateOfBirth" type="date" class="form-control" />
+                            <span asp-validation-for="DateOfBirth" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label asp-for="NationalId" class="form-label fw-semibold small">National ID (NID)</label>
+                            <input asp-for="NationalId" class="form-control" />
+                            <span asp-validation-for="NationalId" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label asp-for="MobileNumber" class="form-label fw-semibold small">Mobile Number *</label>
+                            <input asp-for="MobileNumber" class="form-control" />
+                            <span asp-validation-for="MobileNumber" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="Email" class="form-label fw-semibold small">Email Address</label>
+                            <input asp-for="Email" class="form-control" />
+                            <span asp-validation-for="Email" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-3">
+                            <label asp-for="Division" class="form-label fw-semibold small">Division</label>
+                            <select asp-for="Division" class="form-select">
+                                <option value="">Select Division</option>
+                                <option value="Dhaka">Dhaka (ঢাকা)</option>
+                                <option value="Chittagong">Chittagong (চট্টগ্রাম)</option>
+                                <option value="Rajshahi">Rajshahi (রাজশাহী)</option>
+                                <option value="Khulna">Khulna (খুলনা)</option>
+                                <option value="Barisal">Barisal (বরিশাল)</option>
+                                <option value="Sylhet">Sylhet (সিলেট)</option>
+                                <option value="Rangpur">Rangpur (রংপুর)</option>
+                                <option value="Mymensingh">Mymensingh (ময়মনসিংহ)</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-3">
+                            <label asp-for="District" class="form-label fw-semibold small">District</label>
+                            <input asp-for="District" class="form-control" />
+                        </div>
+
+                        <div class="col-md-12">
+                            <label asp-for="Address" class="form-label fw-semibold small">Address</label>
+                            <textarea asp-for="Address" rows="2" class="form-control"></textarea>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label asp-for="Status" class="form-label fw-semibold small">Status *</label>
+                            <select asp-for="Status" class="form-select">
+                                <option value="Active">Active (সক্রিয়)</option>
+                                <option value="Inactive">Inactive (নিষ্ক্রিয়)</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label asp-for="JoiningDate" class="form-label fw-semibold small">Joining Date</label>
+                            <input asp-for="JoiningDate" type="date" class="form-control" />
+                        </div>
+
+                        <div class="col-md-4">
+                            <label asp-for="Remarks" class="form-label fw-semibold small">Remarks</label>
+                            <input asp-for="Remarks" class="form-control" />
+                        </div>
+                    </div>
+
+                    <div class="mt-4 pt-3 border-top d-flex justify-content-end gap-2">
+                        <a asp-action="Details" asp-route-id="@Model.MemberId" class="btn btn-light border px-4">Cancel</a>
+                        <button type="submit" class="btn btn-primary px-4">
+                            <i class="fa-solid fa-floppy-disk me-1"></i> Update Member
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    function previewImage(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('photoPreview').src = e.target.result;
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+</script>
+}
+

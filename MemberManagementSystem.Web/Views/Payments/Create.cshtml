@@ -1,0 +1,109 @@
+@model MemberManagementSystem.Web.Models.ViewModels.PaymentFormViewModel
+@{
+    ViewData["Title"] = "Record Fee Payment";
+}
+
+<div class="mb-4">
+    <a asp-action="Index" class="text-decoration-none text-muted small">
+        <i class="fa-solid fa-arrow-left me-1"></i> Back to Payments
+    </a>
+    <h3 class="fw-bold mt-1">পেমেন্ট এন্ট্রি (Record Fee / Payment)</h3>
+    <p class="text-muted small">Generate invoice and record membership collection or renewal fee</p>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card shadow-sm border-0">
+            <div class="card-body p-4">
+                <form asp-action="Create" method="post" enctype="multipart/form-data">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" asp-for="ReturnTo" />
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label asp-for="InvoiceNo" class="form-label fw-semibold small">রসিদ / চালান নং (Invoice / Receipt No)</label>
+                            <input asp-for="InvoiceNo" class="form-control font-monospace bg-light" readonly />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="PaymentDate" class="form-label fw-semibold small">তারিখ (Payment Date) *</label>
+                            <input asp-for="PaymentDate" type="date" class="form-control" />
+                            <span asp-validation-for="PaymentDate" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-12">
+                            <label asp-for="MemberId" class="form-label fw-semibold small">সদস্য নির্বাচন করুন (Select Member) *</label>
+                            <select asp-for="MemberId" class="form-select" asp-items="ViewBag.MemberList">
+                                <option value="">-- Select Member --</option>
+                            </select>
+                            <span asp-validation-for="MemberId" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="FeeType" class="form-label fw-semibold small">ফি এর ধরন (Fee Type) *</label>
+                            <select asp-for="FeeType" class="form-select">
+                                <option value="Registration Fee">Registration Fee (রেজিস্ট্রেশন ফি)</option>
+                                <option value="Monthly Fee">Monthly Fee (মাসিক ফি)</option>
+                                <option value="Annual Fee">Annual Fee (বার্ষিক ফি)</option>
+                                <option value="Renewal Fee">Renewal Fee (নবায়ন ফি)</option>
+                                <option value="Donation">Donation (অনুদান)</option>
+                                <option value="Other">Other Fee (অন্যান্য)</option>
+                            </select>
+                            <span asp-validation-for="FeeType" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="Amount" class="form-label fw-semibold small">টাকার পরিমাণ (Amount in BDT) *</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light">৳</span>
+                                <input asp-for="Amount" type="number" step="0.01" class="form-control fw-bold" placeholder="0.00" />
+                            </div>
+                            <span asp-validation-for="Amount" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="PaymentMethod" class="form-label fw-semibold small">পরিশোধের মাধ্যম (Payment Method) *</label>
+                            <select asp-for="PaymentMethod" class="form-select">
+                                <option value="Cash">Cash (নগদ)</option>
+                                <option value="bKash">bKash (বিকাশ)</option>
+                                <option value="Nagad">Nagad (নগদ অ্যাপ)</option>
+                                <option value="Rocket">Rocket (রকেট)</option>
+                                <option value="Bank Transfer">Bank Transfer (ব্যাংক ট্রান্সফার)</option>
+                                <option value="Cheque">Cheque (চেক)</option>
+                            </select>
+                            <span asp-validation-for="PaymentMethod" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="TransactionId" class="form-label fw-semibold small">ট্রানজ্যাকশন আইডি / চেক নং (Txn ID / Ref)</label>
+                            <input asp-for="TransactionId" class="form-control" placeholder="e.g. BK982348X or Cheque #" />
+                            <span asp-validation-for="TransactionId" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-12">
+                            <label asp-for="ReceiptFile" class="form-label fw-semibold small">রসিদ / ভাউচার সংযুক্তি (Receipt Upload: PDF or Image)</label>
+                            <input asp-for="ReceiptFile" type="file" class="form-control" accept=".pdf,.jpg,.jpeg,.png" />
+                            <span asp-validation-for="ReceiptFile" class="text-danger small"></span>
+                            <div class="form-text small">Attach deposit slip, bank voucher or digital screenshot if applicable</div>
+                        </div>
+
+                        <div class="col-md-12">
+                            <label asp-for="Remarks" class="form-label fw-semibold small">মন্তব্য (Remarks / Notes)</label>
+                            <textarea asp-for="Remarks" rows="2" class="form-control" placeholder="Optional payment notes"></textarea>
+                            <span asp-validation-for="Remarks" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2 pt-4 mt-3 border-top">
+                        <a asp-action="Index" class="btn btn-light border px-4">Cancel</a>
+                        <button type="submit" class="btn btn-success px-4">
+                            <i class="fa-solid fa-receipt me-1"></i> Save Payment & Generate Receipt
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+

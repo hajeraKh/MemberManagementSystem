@@ -1,0 +1,66 @@
+@model MemberManagementSystem.Web.Models.Member
+@{
+    ViewData["Title"] = "Member ID Card - " + Model.FullName;
+}
+
+<div class="no-print mb-4 d-flex justify-content-between align-items-center">
+    <a asp-action="Details" asp-route-id="@Model.MemberId" class="btn btn-light border">
+        <i class="fa-solid fa-arrow-left me-1"></i> Back to Profile
+    </a>
+    <button onclick="window.print()" class="btn btn-primary">
+        <i class="fa-solid fa-print me-1"></i> Print ID Card
+    </button>
+</div>
+
+<div class="d-flex justify-content-center">
+    <!-- ID Card Container -->
+    <div class="card shadow border-0 overflow-hidden" style="width: 380px; border-radius: 16px; background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%); color: white;">
+        <!-- Card Header -->
+        <div class="p-3 text-center border-bottom border-white border-opacity-10 position-relative">
+            <div class="d-flex align-items-center justify-content-center gap-2 mb-1">
+                <img src="/images/bfra_logo.png" alt="BFRA Logo" class="rounded-circle bg-white p-1" style="height: 38px; width: 38px; object-fit: contain;" />
+                <h6 class="fw-bold mb-0 tracking-wide text-uppercase" style="letter-spacing: 0.5px; font-size: 0.85rem;">BANGLADESH FOOTBALL REFEREE ASSOCIATION</h6>
+            </div>
+            <div class="small opacity-75" style="font-size: 0.75rem;">OFFICIAL REFEREE MEMBER ID CARD</div>
+        </div>
+
+        <!-- Card Body -->
+        <div class="p-4 text-center bg-white text-dark">
+            <div class="mb-3 position-relative d-inline-block">
+                @if (!string.IsNullOrEmpty(Model.PhotoPath))
+                {
+                    <img src="@Model.PhotoPath" class="rounded-circle border border-3 border-primary shadow" style="width: 110px; height: 110px; object-fit: cover;" alt="@Model.FullName" />
+                }
+                else
+                {
+                    <div class="rounded-circle bg-light border border-3 border-primary shadow d-inline-flex align-items-center justify-content-center text-primary" style="width: 110px; height: 110px;">
+                        <i class="fa-solid fa-user fs-1"></i>
+                    </div>
+                }
+            </div>
+
+            <h5 class="fw-bold text-primary mb-1">@Model.FullName</h5>
+            <div class="badge bg-primary px-3 py-1 font-monospace fs-6 mb-3">@Model.MemberCode</div>
+
+            <div class="text-start bg-light p-3 rounded-3 small">
+                <div class="row g-2">
+                    <div class="col-5 text-muted">Mobile:</div>
+                    <div class="col-7 fw-semibold">@Model.MobileNumber</div>
+                    <div class="col-5 text-muted">District:</div>
+                    <div class="col-7 fw-semibold">@Model.District</div>
+                    <div class="col-5 text-muted">Issue Date:</div>
+                    <div class="col-7 fw-semibold">@Model.JoiningDate.ToString("dd/MM/yyyy")</div>
+                    <div class="col-5 text-muted">Status:</div>
+                    <div class="col-7">
+                        <span class="badge @(Model.Status == "Active" ? "bg-success" : "bg-secondary")">@Model.Status</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-3 pt-2 text-center text-muted" style="font-size: 0.7rem;">
+                This card is non-transferable and remains the property of the issuing organization.
+            </div>
+        </div>
+    </div>
+</div>
+

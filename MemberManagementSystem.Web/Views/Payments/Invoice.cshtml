@@ -1,0 +1,101 @@
+@model MemberManagementSystem.Web.Models.ViewModels.PaymentInvoiceViewModel
+@{
+    ViewData["Title"] = "Money Receipt - " + Model.Payment.InvoiceNo;
+}
+
+<div class="no-print mb-4 d-flex justify-content-between align-items-center">
+    <a asp-action="Index" class="btn btn-light border">
+        <i class="fa-solid fa-arrow-left me-1"></i> Back to Payments
+    </a>
+    <div class="d-flex gap-2">
+        @if (!string.IsNullOrEmpty(Model.Payment.ReceiptPath))
+        {
+            <a href="@Model.Payment.ReceiptPath" target="_blank" class="btn btn-outline-info">
+                <i class="fa-solid fa-paperclip me-1"></i> View Attached Receipt
+            </a>
+        }
+        <button onclick="window.print()" class="btn btn-primary">
+            <i class="fa-solid fa-print me-1"></i> Print Receipt
+        </button>
+    </div>
+</div>
+
+<div class="d-flex justify-content-center">
+    <div class="card shadow-sm border p-4 p-md-5" style="max-width: 750px; width: 100%; background: #ffffff;">
+        <!-- Header -->
+        <div class="border-bottom pb-4 mb-4 text-center">
+            <div class="d-flex align-items-center justify-content-center gap-3 mb-1">
+                <img src="/images/bfra_logo.png" alt="BFRA Logo" style="height: 52px; width: auto; object-fit: contain;" />
+                <h4 class="fw-bold text-dark mb-0">BANGLADESH FOOTBALL REFEREE ASSOCIATION</h4>
+            </div>
+            <div class="small fw-semibold text-muted">বাংলাদেশ ফুটবল রেফারী অ্যাসোসিয়েশন</div>
+            <p class="text-muted small mb-1">Motijheel, Dhaka, Bangladesh | Contact: +880 1700-000000</p>
+            <div class="badge bg-primary text-uppercase px-3 py-1 fs-6 mt-1">MONEY RECEIPT / রসিদ</div>
+        </div>
+
+        <!-- Receipt Meta -->
+        <div class="row g-3 mb-4 small">
+            <div class="col-6">
+                <div><strong>Receipt No:</strong> <span class="font-monospace text-primary fw-bold">@Model.Payment.InvoiceNo</span></div>
+                <div class="mt-1"><strong>Payment Date:</strong> @Model.Payment.PaymentDate.ToString("dd MMMM, yyyy")</div>
+                <div class="mt-1"><strong>Payment Method:</strong> <span class="badge bg-light text-dark border">@Model.Payment.PaymentMethod</span></div>
+                @if (!string.IsNullOrEmpty(Model.Payment.TransactionId))
+                {
+                    <div class="mt-1"><strong>Transaction ID:</strong> <span class="font-monospace">@Model.Payment.TransactionId</span></div>
+                }
+            </div>
+            <div class="col-6 text-end">
+                <div><strong>Member Name:</strong> <span class="fw-bold">@Model.Member.FullName</span></div>
+                <div class="mt-1"><strong>Member ID:</strong> <span class="font-monospace">@Model.Member.MemberCode</span></div>
+                <div class="mt-1"><strong>Mobile:</strong> @Model.Member.MobileNumber</div>
+                <div class="mt-1"><strong>District:</strong> @Model.Member.District</div>
+            </div>
+        </div>
+
+        <!-- Amount Table -->
+        <table class="table table-bordered mb-4">
+            <thead class="table-light">
+                <tr>
+                    <th>Description / বিবরণ</th>
+                    <th>Fee Type</th>
+                    <th class="text-end" style="width: 150px;">Amount (BDT)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        <div class="fw-semibold">@Model.Payment.FeeType for @Model.Member.FullName</div>
+                        <small class="text-muted">@(Model.Payment.Remarks ?? "Official dues / registration collection")</small>
+                    </td>
+                    <td>@Model.Payment.FeeType</td>
+                    <td class="text-end fw-bold">৳@Model.Payment.Amount.ToString("N2")</td>
+                </tr>
+            </tbody>
+            <tfoot>
+                <tr class="table-light">
+                    <th colspan="2" class="text-end">Total Paid Amount (সর্বমোট আদায়):</th>
+                    <th class="text-end fs-5 text-success">৳@Model.Payment.Amount.ToString("N2")</th>
+                </tr>
+            </tfoot>
+        </table>
+
+        <!-- Signatures Footer -->
+        <div class="row pt-5 mt-5">
+            <div class="col-6 text-center">
+                <div class="border-top pt-2 mx-4 text-muted small">
+                    Received By (@(Model.Payment.ReceivedBy ?? "Officer"))
+                </div>
+            </div>
+            <div class="col-6 text-center">
+                <div class="border-top pt-2 mx-4 text-muted small">
+                    Authorized Signatory
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center text-muted mt-5 pt-3 border-top" style="font-size: 0.75rem;">
+            This is a computer-generated money receipt from MemberHub Database System.
+        </div>
+    </div>
+</div>
+

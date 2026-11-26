@@ -1,0 +1,77 @@
+@model MemberManagementSystem.Web.Models.ViewModels.LoginViewModel
+@{
+    ViewData["Title"] = "Login";
+}
+
+<div class="d-flex align-items-center justify-content-center min-vh-100 bg-light py-5">
+    <div class="card shadow-sm border-0" style="max-width: 440px; width: 100%;">
+        <div class="card-body p-4 p-md-5">
+            <div class="text-center mb-4">
+                <div class="mb-3">
+                    <img src="/images/bfra_logo.png" alt="BFRA Logo" style="height: 85px; width: auto; object-fit: contain;" />
+                </div>
+                <h4 class="fw-bold mb-1">Bangladesh Football Referee Association</h4>
+                <p class="text-muted small mb-0">বাংলাদেশ ফুটবল রেফারী অ্যাসোসিয়েশন</p>
+                <small class="text-secondary" style="font-size: 0.75rem;">Member Management & Document Database System</small>
+            </div>
+
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div class="alert alert-danger py-2 px-3 small">
+                    <div asp-validation-summary="All"></div>
+                </div>
+            }
+
+            <form asp-action="Login" method="post">
+                <input type="hidden" asp-for="ReturnUrl" />
+                @Html.AntiForgeryToken()
+
+                <div class="mb-3">
+                    <label asp-for="Username" class="form-label small fw-semibold">Username</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light"><i class="fa-solid fa-user text-muted"></i></span>
+                        <input asp-for="Username" class="form-control" placeholder="e.g. admin" autofocus />
+                    </div>
+                    <span asp-validation-for="Username" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Password" class="form-label small fw-semibold">Password</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light"><i class="fa-solid fa-lock text-muted"></i></span>
+                        <input asp-for="Password" type="password" class="form-control" placeholder="••••••••" />
+                    </div>
+                    <span asp-validation-for="Password" class="text-danger small"></span>
+                </div>
+
+                <div class="form-check mb-4">
+                    <input asp-for="RememberMe" class="form-check-input" />
+                    <label asp-for="RememberMe" class="form-check-label small text-muted">Remember this computer</label>
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold">
+                    <i class="fa-solid fa-right-to-bracket me-2"></i> Sign In
+                </button>
+            </form>
+
+            <div class="mt-4 pt-3 border-top">
+                <div class="text-muted small fw-bold text-center mb-2">QUICK DEMO ACCOUNTS (1-CLICK SIGN IN):</div>
+                <div class="d-grid gap-2">
+                    <a asp-action="QuickLogin" asp-route-username="admin" class="btn btn-sm btn-outline-danger text-start">
+                        <i class="fa-solid fa-shield me-2"></i><strong>Admin</strong> (Full System Control)
+                    </a>
+                    <a asp-action="QuickLogin" asp-route-username="dataentry" class="btn btn-sm btn-outline-warning text-start">
+                        <i class="fa-solid fa-pen-to-square me-2"></i><strong>Data Entry</strong> (Add/Edit Members)
+                    </a>
+                    <a asp-action="QuickLogin" asp-route-username="finance" class="btn btn-sm btn-outline-success text-start">
+                        <i class="fa-solid fa-coins me-2"></i><strong>Finance</strong> (Payments & Invoices)
+                    </a>
+                    <a asp-action="QuickLogin" asp-route-username="viewer" class="btn btn-sm btn-outline-secondary text-start">
+                        <i class="fa-solid fa-eye me-2"></i><strong>Viewer</strong> (Read Only)
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
